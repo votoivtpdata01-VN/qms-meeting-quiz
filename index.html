@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>QMS Meeting Quiz</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f6f8;color:#222}.header{background:#005eb8;color:#fff;text-align:center;padding:24px}.container{max-width:780px;margin:24px auto;background:#fff;padding:26px;border-radius:14px;box-shadow:0 4px 16px #0002}.hidden{display:none!important}input,select,textarea,button{width:100%;padding:12px;margin:7px 0;font-size:16px;border-radius:7px}input,select,textarea{border:1px solid #bbb}textarea{min-height:80px}button{border:0;cursor:pointer}.primary{background:#005eb8;color:#fff}.green{background:#1f9d61;color:#fff}.orange{background:#e88120;color:#fff}.red{background:#d64545;color:#fff}.gray{background:#e8e8e8}.row{display:flex;gap:10px}.row>*{flex:1}.card{border:1px solid #ddd;border-radius:10px;padding:16px;margin:12px 0}.question{border-left:5px solid #005eb8;background:#fafcff}.room-code{font-size:42px;font-weight:bold;letter-spacing:7px;text-align:center;color:#005eb8}.player{padding:10px;background:#eef6ff;border-radius:7px;margin:7px 0}.message{padding:10px;border-radius:7px;text-align:center;margin:10px 0}.error{background:#fdeaea;color:#a40000}.success{background:#e6f7ed;color:#137333}.small{font-size:13px;color:#666;text-align:center}.question-image{display:block;max-width:100%;max-height:360px;object-fit:contain;margin:12px auto;border-radius:10px;border:1px solid #ddd}.rank-box{background:#f8fbff;border:2px solid #005eb8}.rank-title{text-align:center;color:#005eb8}.preview-image{display:none;max-width:100%;max-height:240px;object-fit:contain;margin:10px auto;border-radius:8px;border:1px solid #ddd}@media(max-width:600px){.container{margin:12px}.row{display:block}}
+</style>
+</head><body>
+<header class="header"><h1>QMS Meeting Quiz</h1><p>Learn • Compete • Improve</p></header>
+
+<section id="home" class="container">
+<h2>Join a Quiz</h2><input id="roomCode" placeholder="6-digit Room Code" maxlength="6"><input id="playerName" placeholder="Your Name" maxlength="50"><button id="joinBtn" class="primary">Join Quiz</button><div id="joinMsg"></div><hr>
+<h3>Quiz Creator</h3><button id="showLogin" class="gray">Login</button><button id="showRegister" class="green">Create Account</button>
+</section>
+
+<section id="login" class="container hidden"><h2>Creator Login</h2><input id="loginEmail" type="email" placeholder="Email"><input id="loginPassword" type="password" placeholder="Password"><button id="loginBtn" class="primary">Login</button><button class="back gray">Back</button><div id="loginMsg"></div></section>
+<section id="register" class="container hidden"><h2>Create Account</h2><input id="regName" placeholder="Your Name"><input id="regEmail" type="email" placeholder="Email"><input id="regPassword" type="password" placeholder="Password, minimum 6 characters"><button id="registerBtn" class="green">Create Account</button><button class="back gray">Back</button><div id="regMsg"></div></section>
+
+<section id="dashboard" class="container hidden"><div id="creatorName" class="small"></div><h2>My Quizzes</h2><div class="row"><button id="newQuiz" class="green">+ Create Quiz</button><button id="logoutBtn" class="red">Logout</button></div><div id="quizList"></div></section>
+
+<section id="editor" class="container hidden"><h2 id="editorHeading">Create Quiz</h2><input id="editId" type="hidden"><input id="quizTitle" placeholder="Quiz Title"><textarea id="quizDescription" placeholder="Description"></textarea><div id="questions"></div><button id="addQuestion" class="orange">+ Add Question</button><button id="saveQuiz" class="green">Save Quiz</button><button id="cancelEdit" class="gray">Cancel</button><div id="editorMsg"></div></section>
+
+<section id="hostRoom" class="container hidden">
+<h2 id="hostRoomHeading">Waiting Room</h2><p class="small">Room code</p><div id="hostCode" class="room-code"></div><h3 id="hostQuizTitle"></h3>
+<div id="hostQuestionArea" class="card hidden"><div id="hostProgress" class="small"></div><h2 id="hostQuestionText"></h2><img id="hostQuestionImage" class="question-image hidden" alt="Question illustration"><div id="hostTimer" class="room-code">--</div><div id="answeredStatus" style="text-align:center;margin:14px 0;padding:14px;border-radius:10px;background:#eef6ff;border:2px solid #005eb8;color:#005eb8">
+  <div id="answeredCount" style="font-size:24px;font-weight:bold">Answered: 0/0</div>
+  <div id="answeredNotice" style="font-size:14px;margin-top:5px">Waiting for answers...</div>
+</div></div>
+<div id="hostRoundRanking" class="card rank-box hidden"><h2 class="rank-title">Ranking after this question</h2><div id="hostRoundRankingList"></div></div>
+<h3>Players (<span id="playerCount">0</span>)</h3><div id="hostPlayers"></div>
+<button id="startQuiz" class="green">Start Quiz</button><button id="nextQuestion" class="primary hidden">Next Question</button><button id="finishQuiz" class="orange hidden">Finish Quiz</button><button id="closeRoom" class="red">Close Room</button><div id="hostMsg"></div>
+</section>
+
+<section id="playerRoom" class="container hidden">
+<h2 id="playerRoomHeading">Joined</h2><div id="playerRoomCode" class="room-code"></div><h3 id="playerQuizTitle"></h3><p id="playerStatus" class="small">Waiting for the host to start...</p>
+<div id="playerQuestionArea" class="card hidden"><div id="playerProgress" class="small"></div><h2 id="playerQuestionText"></h2><img id="playerQuestionImage" class="question-image hidden" alt="Question illustration"><div id="playerTimer" class="room-code">--</div><div id="playerAnswers"></div><button id="submitAnswer" class="green">Submit Answer</button><div id="answerMsg"></div>
+<div id="questionResult" class="card hidden" style="text-align:center">
+  <h2 id="resultTitle"></h2>
+  <div id="resultPoints" class="room-code" style="font-size:32px"></div>
+  <p id="resultCorrectAnswer"></p>
+  <p id="resultTotalScore" class="small"></p>
+</div></div>
+<div id="leaderboard" class="card rank-box hidden"><h2 id="leaderboardHeading" class="rank-title">Current Ranking</h2><div id="leaderboardList"></div></div>
+<button id="leaveRoom" class="red">Leave Room</button>
+</section>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signInAnonymously,signOut,onAuthStateChanged,updateProfile}from"https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
+import{getFirestore,collection,addDoc,getDocs,getDoc,doc,updateDoc,deleteDoc,query,where,serverTimestamp,onSnapshot,setDoc}from"https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+const firebaseConfig={apiKey:"AIzaSyC1EsOZXdJ7uXh9736EO04QP7SstvvXdDQ",authDomain:"qms-meeting-quiz.firebaseapp.com",projectId:"qms-meeting-quiz",storageBucket:"qms-meeting-quiz.firebasestorage.app",messagingSenderId:"839268667216",appId:"1:839268667216:web:24d1eff9f42a639d44a655",measurementId:"G-26ZXYCFG6W"};
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+const ids=["home","login","register","dashboard","editor","hostRoom","playerRoom"],$=id=>document.getElementById(id);let currentUser=null,roomUnsub=null,playersUnsub=null,playerUnsub=null,currentRoomId=null,currentHostQuiz=null,hostQuestionStart=0,hostTimerHandle=null,playerTimerHandle=null,questionEnding=false,lastEndedQuestion=-1;
+function show(id){ids.forEach(x=>$(x).classList.add("hidden"));$(id).classList.remove("hidden")}
+function msg(id,text,type="error"){$(id).className="message "+type;$(id).textContent=text}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function isAnonymous(u){return !!u&&u.isAnonymous}
+$("showLogin").onclick=()=>show("login");$("showRegister").onclick=()=>show("register");document.querySelectorAll(".back").forEach(b=>b.onclick=()=>show("home"));
+$("registerBtn").onclick=async()=>{try{let n=$("regName").value.trim(),e=$("regEmail").value.trim(),p=$("regPassword").value;if(!n||!e||p.length<6)throw Error("Complete all fields. Password needs 6 characters.");let c=await createUserWithEmailAndPassword(auth,e,p);await updateProfile(c.user,{displayName:n})}catch(e){msg("regMsg",e.message)}};
+$("loginBtn").onclick=async()=>{try{await signInWithEmailAndPassword(auth,$("loginEmail").value.trim(),$("loginPassword").value)}catch(e){msg("loginMsg","Email or password is incorrect.")}};
+$("logoutBtn").onclick=()=>signOut(auth);onAuthStateChanged(auth,async u=>{currentUser=u;if(!u){show("home");return}if(isAnonymous(u)){return}$("creatorName").textContent=(u.displayName||"")+" ("+u.email+")";show("dashboard");await loadQuizzes()});
+
+$("newQuiz").onclick=()=>{resetEditor();addQuestion();show("editor")};$("cancelEdit").onclick=()=>show("dashboard");$("addQuestion").onclick=()=>addQuestion();
+function addQuestion(data={}){let d=document.createElement("div");d.className="card question";d.innerHTML=`<div class="row"><strong>Question</strong><button class="remove red" type="button">Remove</button></div><select class="type"><option value="multiple-choice">Multiple Choice</option><option value="fill-blank">Fill in the Blank</option></select><textarea class="text" placeholder="Question text"></textarea><input class="image-url" type="url" placeholder="Optional image URL, for example https://.../image.jpg"><button class="preview-image-btn gray" type="button">Preview Image</button><img class="preview-image" alt="Question image preview"><div class="mc"><input class="a" placeholder="Option A"><input class="b" placeholder="Option B"><input class="c" placeholder="Option C"><input class="d" placeholder="Option D"><select class="answer"><option>A</option><option>B</option><option>C</option><option>D</option></select></div><div class="fb hidden"><input class="fill" placeholder="Correct answer"></div><div class="row"><select class="time"><option value="10">10 seconds</option><option value="20" selected>20 seconds</option><option value="30">30 seconds</option><option value="60">60 seconds</option><option value="90">90 seconds</option><option value="120">120 seconds</option></select><select class="points"><option value="500">500 points</option><option value="1000" selected>1000 points</option><option value="2000">2000 points</option></select></div>`;$("questions").appendChild(d);let type=d.querySelector(".type");function toggle(){d.querySelector(".mc").classList.toggle("hidden",type.value!=="multiple-choice");d.querySelector(".fb").classList.toggle("hidden",type.value!=="fill-blank")}type.onchange=toggle;d.querySelector(".remove").onclick=()=>{if(document.querySelectorAll(".question").length>1)d.remove();else alert("A quiz needs at least one question.")};type.value=data.type||"multiple-choice";d.querySelector(".text").value=data.questionText||"";d.querySelector(".time").value=String(data.timeLimit||20);d.querySelector(".points").value=String(data.points||1000);if(data.options){d.querySelector(".a").value=data.options.A||"";d.querySelector(".b").value=data.options.B||"";d.querySelector(".c").value=data.options.C||"";d.querySelector(".d").value=data.options.D||""}d.querySelector(".answer").value=data.correctAnswer||"A";d.querySelector(".fill").value=data.correctAnswer||"";d.querySelector(".image-url").value=data.imageUrl||"";d.querySelector(".preview-image-btn").onclick=()=>{const url=d.querySelector(".image-url").value.trim(),img=d.querySelector(".preview-image");if(!url){img.style.display="none";alert("Paste an image URL first.");return}img.src=url;img.style.display="block";img.onerror=()=>{img.style.display="none";alert("Cannot load this image URL.")}};toggle()}
+function collectQuestions(){return[...document.querySelectorAll(".question")].map((d,i)=>{let type=d.querySelector(".type").value,text=d.querySelector(".text").value.trim();if(!text)throw Error(`Enter Question ${i+1}.`);let q={type,questionText:text,imageUrl:d.querySelector(".image-url").value.trim(),timeLimit:+d.querySelector(".time").value,points:+d.querySelector(".points").value};if(type==="multiple-choice"){q.options={A:d.querySelector(".a").value.trim(),B:d.querySelector(".b").value.trim(),C:d.querySelector(".c").value.trim(),D:d.querySelector(".d").value.trim()};if(Object.values(q.options).some(x=>!x))throw Error(`Complete all options for Question ${i+1}.`);q.correctAnswer=d.querySelector(".answer").value}else{q.options={};q.correctAnswer=d.querySelector(".fill").value.trim();if(!q.correctAnswer)throw Error(`Enter the answer for Question ${i+1}.`)}return q})}
+$("saveQuiz").onclick=async()=>{try{let title=$("quizTitle").value.trim();if(!title)throw Error("Enter a quiz title.");let data={title,description:$("quizDescription").value.trim(),questions:collectQuestions(),ownerId:currentUser.uid,ownerEmail:currentUser.email,questionCount:document.querySelectorAll(".question").length,status:"draft",updatedAt:serverTimestamp()},id=$("editId").value;if(id)await updateDoc(doc(db,"quizzes",id),data);else{data.createdAt=serverTimestamp();await addDoc(collection(db,"quizzes"),data)}show("dashboard");await loadQuizzes()}catch(e){msg("editorMsg",e.message)}};
+function resetEditor(){$("editId").value="";$("quizTitle").value="";$("quizDescription").value="";$("questions").innerHTML="";$("editorMsg").textContent=""}
+async function loadQuizzes(){let snap=await getDocs(query(collection(db,"quizzes"),where("ownerId","==",currentUser.uid))),list=$("quizList");list.innerHTML="";if(snap.empty){list.innerHTML='<div class="card">No quiz created yet.</div>';return}snap.forEach(s=>{let q=s.data(),c=document.createElement("div");c.className="card";c.innerHTML=`<h3>${esc(q.title)}</h3><p>${esc(q.description||"")}</p><p><b>Questions:</b> ${q.questionCount||q.questions?.length||0}</p><div class="row"><button class="edit primary">Edit</button><button class="host orange">Host</button><button class="del red">Delete</button></div>`;c.querySelector(".edit").onclick=()=>editQuiz(s.id);c.querySelector(".host").onclick=()=>hostQuiz(s.id,q);c.querySelector(".del").onclick=async()=>{if(confirm("Delete this quiz?")){await deleteDoc(doc(db,"quizzes",s.id));loadQuizzes()}};list.appendChild(c)})}
+async function editQuiz(id){let s=await getDoc(doc(db,"quizzes",id)),q=s.data();resetEditor();$("editId").value=id;$("quizTitle").value=q.title||"";$("quizDescription").value=q.description||"";(q.questions||[]).forEach(addQuestion);if(!q.questions?.length)addQuestion();show("editor")}
+
+function makeCode(){return String(Math.floor(100000+Math.random()*900000))}
+function publicQuestion(q){return{type:q.type,questionText:q.questionText,imageUrl:q.imageUrl||"",options:q.options||{},timeLimit:q.timeLimit||20,points:q.points||1000}}
+async function hostQuiz(quizId,quiz){try{let full=await getDoc(doc(db,"quizzes",quizId));currentHostQuiz=full.data();let code=makeCode(),existing=await getDocs(query(collection(db,"rooms"),where("roomCode","==",code),where("status","==","waiting")));if(!existing.empty)code=makeCode();let ref=await addDoc(collection(db,"rooms"),{roomCode:code,quizId,quizTitle:quiz.title,hostId:currentUser.uid,hostName:currentUser.displayName||currentUser.email,status:"waiting",currentQuestionIndex:-1,totalQuestions:currentHostQuiz.questions.length,currentQuestion:null,createdAt:serverTimestamp(),updatedAt:serverTimestamp()});currentRoomId=ref.id;$("hostCode").textContent=code;$("hostQuizTitle").textContent=quiz.title;$("hostRoomHeading").textContent="Waiting Room";$("hostQuestionArea").classList.add("hidden");$("nextQuestion").classList.add("hidden");$("finishQuiz").classList.add("hidden");$("startQuiz").classList.remove("hidden");show("hostRoom");listenHostRoom(ref.id)}catch(e){alert("Cannot create room: "+e.message)}}
+function listenHostRoom(roomId){if(playersUnsub)playersUnsub();playersUnsub=onSnapshot(collection(db,"rooms",roomId,"players"),async snap=>{
+  $("playerCount").textContent=snap.size;
+  let players=[];snap.forEach(p=>players.push({id:p.id,...p.data()}));
+  players.sort((a,b)=>(b.score||0)-(a.score||0));
+  $("hostPlayers").innerHTML="";
+  const currentIndex=Number($("hostProgress").dataset.index);
+  const answeredCount=currentIndex>=0?players.filter(p=>p.lastAnswerIndex===currentIndex).length:0;
+  $("answeredCount").textContent=`Answered: ${answeredCount}/${players.length}`;
+  const answeredStatus=$("answeredStatus"),answeredNotice=$("answeredNotice");
+  if(players.length>0 && answeredCount===players.length){
+    answeredStatus.style.background="#e6f7ed";answeredStatus.style.borderColor="#20a464";answeredStatus.style.color="#137333";
+    answeredNotice.textContent="All players answered! Question ended.";
+  }else if(answeredCount>0){
+    answeredStatus.style.background="#fff4e5";answeredStatus.style.borderColor="#e88120";answeredStatus.style.color="#a35400";
+    answeredNotice.textContent=`Waiting for ${players.length-answeredCount} player(s)...`;
+  }else{
+    answeredStatus.style.background="#eef6ff";answeredStatus.style.borderColor="#005eb8";answeredStatus.style.color="#005eb8";
+    answeredNotice.textContent="Waiting for answers...";
+  }
+  for(const p of players){
+    if(currentHostQuiz&&p.lastAnswerIndex===currentIndex&&p.scoredIndex!==p.lastAnswerIndex)await scorePlayer(p);
+    let d=document.createElement("div");d.className="player";d.innerHTML=`<b>${esc(p.name)}</b> &nbsp; ${p.score||0} points`;$("hostPlayers").appendChild(d)
+  }
+  if(currentHostQuiz && currentIndex>=0 && players.length>0){
+    const allAnswered=players.every(p=>p.lastAnswerIndex===currentIndex);
+    if(allAnswered && !questionEnding && lastEndedQuestion!==currentIndex){
+      await endCurrentQuestion("all-answered");
+    }
+  }
+})}
+async function scorePlayer(p){let i=p.lastAnswerIndex,q=currentHostQuiz.questions[i];if(!q)return;let given=String(p.lastAnswer??"").trim().toLowerCase(),correct=String(q.correctAnswer??"").trim().toLowerCase(),right=given===correct;let elapsed=Math.max(0,Date.now()-hostQuestionStart),limit=(q.timeLimit||20)*1000,bonus=right?Math.round((q.points||1000)*0.5*Math.max(0,1-elapsed/limit)):0,gain=right?(q.points||1000)+bonus:0;await updateDoc(doc(db,"rooms",currentRoomId,"players",p.id),{score:(p.score||0)+gain,scoredIndex:i,lastCorrect:right,lastGain:gain,correctAnswerReveal:q.correctAnswer,resultReady:true})}
+function buildRankingHtml(players){return players.sort((a,b)=>(b.score||0)-(a.score||0)).map((p,i)=>`<div class="player"><b>#${i+1} ${esc(p.name)}</b><span style="float:right">${p.score||0} points</span></div>`).join("")}
+async function endCurrentQuestion(reason){
+  const index=Number($("hostProgress").dataset.index);
+  if(questionEnding||lastEndedQuestion===index)return;
+  questionEnding=true;lastEndedQuestion=index;clearInterval(hostTimerHandle);$("hostTimer").textContent="0";
+  const snap=await getDocs(collection(db,"rooms",currentRoomId,"players"));
+  for(const d of snap.docs){const p={id:d.id,...d.data()};if(p.lastAnswerIndex===index&&p.scoredIndex!==index)await scorePlayer(p);else if(p.lastAnswerIndex!==index)await updateDoc(d.ref,{scoredIndex:index,lastCorrect:false,lastGain:0,correctAnswerReveal:currentHostQuiz.questions[index].correctAnswer,resultReady:true})}
+  const latest=await getDocs(collection(db,"rooms",currentRoomId,"players")),players=[];latest.forEach(d=>players.push(d.data()));
+  $("hostRoundRankingList").innerHTML=buildRankingHtml(players);$("hostRoundRanking").classList.remove("hidden");
+  const last=index>=currentHostQuiz.questions.length-1;$(last?"finishQuiz":"nextQuestion").classList.remove("hidden");
+  await updateDoc(doc(db,"rooms",currentRoomId),{questionEnded:true,questionEndedReason:reason,questionEndedAtMillis:Date.now(),updatedAt:serverTimestamp()});
+  msg("hostMsg",reason==="all-answered"?"All players answered. Current ranking is ready.":"Time is up. Current ranking is ready.","success");questionEnding=false;
+}
+function runHostTimer(seconds){clearInterval(hostTimerHandle);let end=Date.now()+seconds*1000;hostTimerHandle=setInterval(async()=>{let left=Math.max(0,Math.ceil((end-Date.now())/1000));$("hostTimer").textContent=left;if(left<=0){clearInterval(hostTimerHandle);await endCurrentQuestion("time-up")}},250)}
+async function openQuestion(index){let q=currentHostQuiz.questions[index];hostQuestionStart=Date.now();questionEnding=false;lastEndedQuestion=-1;$("hostProgress").textContent=`Question ${index+1} of ${currentHostQuiz.questions.length}`;$("hostProgress").dataset.index=index;$("hostQuestionText").textContent=q.questionText;const hostImg=$("hostQuestionImage");if(q.imageUrl){hostImg.src=q.imageUrl;hostImg.classList.remove("hidden")}else{hostImg.src="";hostImg.classList.add("hidden")}$("hostRoundRanking").classList.add("hidden");$("nextQuestion").classList.add("hidden");$("finishQuiz").classList.add("hidden");$("hostQuestionArea").classList.remove("hidden");$("hostRoomHeading").textContent="Quiz in progress";$("answeredCount").textContent=`Answered: 0/${$("playerCount").textContent}`;$("answeredStatus").style.background="#eef6ff";$("answeredStatus").style.borderColor="#005eb8";$("answeredStatus").style.color="#005eb8";$("answeredNotice").textContent="Waiting for answers...";runHostTimer(q.timeLimit||20);let ps=await getDocs(collection(db,"rooms",currentRoomId,"players"));for(const p of ps.docs)await updateDoc(p.ref,{lastAnswer:null,lastAnswerIndex:-1,scoredIndex:-1,lastCorrect:null,lastGain:0,correctAnswerReveal:null,resultReady:false});await updateDoc(doc(db,"rooms",currentRoomId),{status:"playing",currentQuestionIndex:index,currentQuestion:publicQuestion(q),questionStartedAtMillis:Date.now(),questionEnded:false,questionEndedReason:null,questionEndedAtMillis:null,updatedAt:serverTimestamp()});}
+$("startQuiz").onclick=async()=>{if(!currentRoomId)return;let snap=await getDocs(collection(db,"rooms",currentRoomId,"players"));if(snap.empty){msg("hostMsg","At least one player is required.");return}$("startQuiz").classList.add("hidden");await openQuestion(0)};
+$("nextQuestion").onclick=async()=>{let i=Number($("hostProgress").dataset.index)+1;await openQuestion(i)};
+$("finishQuiz").onclick=async()=>{clearInterval(hostTimerHandle);await updateDoc(doc(db,"rooms",currentRoomId),{status:"finished",currentQuestion:null,updatedAt:serverTimestamp()});$("hostRoomHeading").textContent="Final Results";$("hostQuestionArea").classList.add("hidden");$("finishQuiz").classList.add("hidden");msg("hostMsg","Quiz finished. Final ranking is shown below.","success")};
+$("closeRoom").onclick=async()=>{if(currentRoomId)await updateDoc(doc(db,"rooms",currentRoomId),{status:"closed",updatedAt:serverTimestamp()});if(playersUnsub)playersUnsub();currentRoomId=null;currentHostQuiz=null;show("dashboard")};
+
+$("joinBtn").onclick=async()=>{let code=$("roomCode").value.trim(),name=$("playerName").value.trim();if(!/^\d{6}$/.test(code)||!name){msg("joinMsg","Enter a 6-digit room code and your name.");return}try{if(auth.currentUser&&!auth.currentUser.isAnonymous)await signOut(auth);if(!auth.currentUser)await signInAnonymously(auth);let rooms=await getDocs(query(collection(db,"rooms"),where("roomCode","==",code),where("status","==","waiting")));if(rooms.empty)throw Error("Room not found or already started.");let r=rooms.docs[0],uid=auth.currentUser.uid;await setDoc(doc(db,"rooms",r.id,"players",uid),{uid,name,score:0,joinedAt:serverTimestamp(),lastAnswer:null,lastAnswerIndex:-1,scoredIndex:-1});currentRoomId=r.id;$("playerRoomCode").textContent=code;$("playerQuizTitle").textContent=r.data().quizTitle;show("playerRoom");listenPlayerRoom(r.id);listenPlayerResult(r.id,uid);listenLeaderboard(r.id)}catch(e){msg("joinMsg",e.message)}};
+function listenPlayerRoom(roomId){if(roomUnsub)roomUnsub();roomUnsub=onSnapshot(doc(db,"rooms",roomId),s=>{if(!s.exists())return;let r=s.data();if(r.status==="playing"&&r.currentQuestion){renderPlayerQuestion(r);if(r.questionEnded){clearInterval(playerTimerHandle);$("playerTimer").textContent="0";$("submitAnswer").disabled=true;$("leaderboardHeading").textContent=`Ranking after Question ${r.currentQuestionIndex+1}`;$("leaderboard").classList.remove("hidden");if($("questionResult").classList.contains("hidden"))msg("answerMsg","Question ended. Current ranking is shown below.","success")}};if(r.status==="finished"){clearInterval(playerTimerHandle);$("playerQuestionArea").classList.add("hidden");$("leaderboardHeading").textContent="Final Leaderboard";$("leaderboard").classList.remove("hidden");$("playerRoomHeading").textContent="Final Results";$("playerStatus").textContent="Quiz finished."}if(r.status==="closed"){$("playerStatus").textContent="The host closed this room.";$("playerQuestionArea").classList.add("hidden")}})}
+function renderPlayerQuestion(r){let q=r.currentQuestion,i=r.currentQuestionIndex;$("playerRoomHeading").textContent="Question";$("playerStatus").textContent="Choose your answer before time runs out.";$("playerProgress").textContent=`Question ${i+1} of ${r.totalQuestions}`;$("playerQuestionText").textContent=q.questionText;const playerImg=$("playerQuestionImage");if(q.imageUrl){playerImg.src=q.imageUrl;playerImg.classList.remove("hidden")}else{playerImg.src="";playerImg.classList.add("hidden")}$("leaderboard").classList.add("hidden");let box=$("playerAnswers");box.innerHTML="";if(q.type==="multiple-choice"){Object.entries(q.options).forEach(([k,v])=>{let label=document.createElement("label");label.className="player";label.innerHTML=`<input style="width:auto" type="radio" name="answer" value="${esc(k)}"> <b>${esc(k)}.</b> ${esc(v)}`;box.appendChild(label)})}else{box.innerHTML='<input id="fillAnswer" placeholder="Type your answer">'}$("answerMsg").textContent="";$("questionResult").classList.add("hidden");$("submitAnswer").disabled=false;$("submitAnswer").dataset.index=i;$("playerQuestionArea").classList.remove("hidden");runPlayerTimer(q.timeLimit||20,r.questionStartedAtMillis)}
+function runPlayerTimer(seconds,start){clearInterval(playerTimerHandle);let end=(start||Date.now())+seconds*1000;playerTimerHandle=setInterval(()=>{let left=Math.max(0,Math.ceil((end-Date.now())/1000));$("playerTimer").textContent=left;if(left<=0){clearInterval(playerTimerHandle);$("submitAnswer").disabled=true;msg("answerMsg","Time is up.")}},250)}
+$("submitAnswer").onclick=async()=>{let room=await getDoc(doc(db,"rooms",currentRoomId)),q=room.data().currentQuestion,index=room.data().currentQuestionIndex,answer;if(q.type==="multiple-choice"){let chosen=document.querySelector('input[name="answer"]:checked');answer=chosen?.value}else answer=$("fillAnswer")?.value.trim();if(!answer){msg("answerMsg","Select or enter an answer.");return}await updateDoc(doc(db,"rooms",currentRoomId,"players",auth.currentUser.uid),{lastAnswer:answer,lastAnswerIndex:index,answeredAtMillis:Date.now()});$("submitAnswer").disabled=true;clearInterval(playerTimerHandle);msg("answerMsg","Answer submitted. Wait for the next question.","success")};
+function listenPlayerResult(roomId,uid){
+  if(playerUnsub)playerUnsub();
+  playerUnsub=onSnapshot(doc(db,"rooms",roomId,"players",uid),snap=>{
+    if(!snap.exists())return;
+    const p=snap.data();
+    if(!p.resultReady)return;
+    const correct=!!p.lastCorrect;
+    $("resultTitle").textContent=correct?"Correct!":"Incorrect";
+    $("resultTitle").style.color=correct?"#137333":"#b3261e";
+    $("resultPoints").textContent=correct?`+${p.lastGain||0}`:"+0";
+    $("resultPoints").style.color=correct?"#137333":"#b3261e";
+    $("resultCorrectAnswer").innerHTML=`Correct answer: <strong>${esc(p.correctAnswerReveal||"")}</strong>`;
+    $("resultTotalScore").textContent=`Total score: ${p.score||0} points`;
+    $("questionResult").classList.remove("hidden");
+    $("answerMsg").textContent="";
+  });
+}
+function listenLeaderboard(roomId){onSnapshot(collection(db,"rooms",roomId,"players"),snap=>{let arr=[];snap.forEach(p=>arr.push(p.data()));arr.sort((a,b)=>(b.score||0)-(a.score||0));$("leaderboardList").innerHTML=arr.map((p,i)=>`<div class="player"><b>#${i+1} ${esc(p.name)}</b><span style="float:right">${p.score||0}</span></div>`).join("")})}
+$("leaveRoom").onclick=async()=>{try{if(currentRoomId&&auth.currentUser)await deleteDoc(doc(db,"rooms",currentRoomId,"players",auth.currentUser.uid))}catch(e){}if(roomUnsub)roomUnsub();if(playerUnsub)playerUnsub();currentRoomId=null;await signOut(auth);show("home")};
+</script></body></html>
